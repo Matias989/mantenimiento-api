@@ -20,12 +20,15 @@ builder.Services.AddControllersWithViews();
 //Servicios
 var mapperConfig = new MapperConfiguration((m) => {
     m.AddProfile(new WorkOrderProfile());
+    m.AddProfile(new UserProfile());
 });
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddMvc();
 
 builder.Services.AddScoped<IWorkOrdersServices, WorkOrdersServices>();
+builder.Services.AddScoped<IUsersServices, UsersServices>();
+builder.Services.AddScoped<IAuthServices, AuthServices>();
 
 //Mapping
 builder.Services.AddAutoMapper(typeof(WorkOrderProfile));

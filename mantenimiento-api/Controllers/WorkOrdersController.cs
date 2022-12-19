@@ -25,14 +25,14 @@ namespace mantenimiento_api.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Get()
+        public async Task<ActionResult<ApiResponseBase<IEnumerable<WorkOrderVM>>>> Get()
         {
-            ApiResponseBase<List<WorkOrderVM>> resp = new ApiResponseBase<List<WorkOrderVM>>();
+            ApiResponseBase<IEnumerable<WorkOrderVM>> resp = new ApiResponseBase<IEnumerable<WorkOrderVM>>();
             resp.Successful();
             try
             {
                 var respService = _services.GetWorkOrders();
-                resp.Data = _mapper.Map<List<WorkOrderVM>>(respService);
+                resp.Data = _mapper.Map<IEnumerable<WorkOrderVM>>(respService);
             }
             catch (Exception e)
             {
@@ -43,10 +43,10 @@ namespace mantenimiento_api.Controllers
             return Ok(resp);
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         [AllowAnonymous]
-        [Route("find")]
-        public IActionResult Get([FromQuery]int id)
+
+        public async Task<ActionResult<ApiResponseBase<WorkOrderVM>>> Get([FromQuery]int id)
         {
             ApiResponseBase<WorkOrderVM> resp = new ApiResponseBase<WorkOrderVM>();
             resp.Successful();
@@ -58,14 +58,16 @@ namespace mantenimiento_api.Controllers
                     return BadRequest(resp);
                 }
 
-                resp.Data = _mapper.Map<WorkOrder,WorkOrderVM> (_services.GetWorkOrder(id));
+                var data = _services.GetWorkOrder(id);
 
-                if (resp.Data is null)
+                if (data is null)
                 {
                     var msj = "no se encontro orden de trabajo con id: " + id;
                     _logger.LogError(msj);
-                    return BadRequest(msj);
+                    resp.Error(msj);
+                    return BadRequest(resp);
                 }
+                resp.Data = _mapper.Map<WorkOrder, WorkOrderVM>(data);
             }
             catch (Exception e)
             {
@@ -78,10 +80,9 @@ namespace mantenimiento_api.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        [Route("publish")]
-        public IActionResult Post([FromBody] WorkOrderVM workOrderVM)
+        public async Task<ActionResult<ApiResponseBase<int>>> Post([FromBody] WorkOrderVM workOrderVM)
         {
-            ApiResponseBase<WorkOrderVM> resp = new ApiResponseBase<WorkOrderVM>();
+            ApiResponseBase<int> resp = new ApiResponseBase<int>();
             resp.Successful();
             try
             {
@@ -101,9 +102,7 @@ namespace mantenimiento_api.Controllers
                     _logger.LogError(msjError);
                     return Problem(msjError);
                 }
-
-                workOrderVM.Id = idWorkOrder;
-                resp.Data = workOrderVM;
+                resp.Data = idWorkOrder;
             }
             catch (Exception e)
             {
@@ -116,11 +115,11 @@ namespace mantenimiento_api.Controllers
 
         [HttpPut]
         [AllowAnonymous]
-        [Route("update")]
-        public IActionResult Put([FromBody] WorkOrderVM workOrderVM)
+        public async Task<ActionResult<ApiResponseBase<string>>> Put([FromBody] WorkOrderVM workOrderVM)
         {
-            ApiResponseBase<WorkOrderVM> resp = new ApiResponseBase<WorkOrderVM>();
+            ApiResponseBase<string> resp = new ApiResponseBase<string>();
             resp.Successful();
+            resp.Data = string.Empty;
             try
             {
                 if (workOrderVM.UserCreator is null || string.IsNullOrEmpty(workOrderVM.Observation))
@@ -131,12 +130,13 @@ namespace mantenimiento_api.Controllers
                     return BadRequest(resp);
                 }
                 var mappedWO = _mapper.Map<WorkOrderVM, WorkOrder>(workOrderVM);
-                var idWorkOrder = _services.UpdateWorkOrder(mappedWO);
+                var WorkOrder = _services.UpdateWorkOrder(mappedWO);
 
-                if (!idWorkOrder)
+                if (!WorkOrder)
                 {
                     string msjError = "Ocurrio un problema insertando el registro";
                     _logger.LogError(msjError);
+                    resp.Error(msjError);
                     return Problem(msjError);
                 }
 
@@ -150,13 +150,13 @@ namespace mantenimiento_api.Controllers
             return Ok(resp);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         [AllowAnonymous]
-        [Route("remove")]
-        public IActionResult Delete([FromQuery] int idWorkOrder)
+        public async Task<ActionResult<ApiResponseBase<string>>> Delete([FromQuery] int idWorkOrder)
         {
-            ApiResponseBase<WorkOrderVM> resp = new ApiResponseBase<WorkOrderVM>();
+            ApiResponseBase<string> resp = new ApiResponseBase<string>();
             resp.Successful();
+            resp.Data = string.Empty;
             try
             {
                 if (idWorkOrder < 0)
@@ -173,6 +173,7 @@ namespace mantenimiento_api.Controllers
                 {
                     string msjError = "Ocurrio un problema eliminando el registro";
                     _logger.LogError(msjError);
+                    resp.Error(msjError);
                     return Problem(msjError);
                 }
 

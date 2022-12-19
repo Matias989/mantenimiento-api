@@ -14,7 +14,8 @@ namespace mantenimiento_api.Controllers.Profile
             .ForMember(d => d.UserAsigned,
                  opt => opt.MapFrom(s => s.IdUserAsignedNavigation))
             .ForMember(d => d.UserCreator,
-                 opt => opt.MapFrom(s => s.IdUserCreatorNavigation));
+                 opt => opt.MapFrom(s => s.IdUserCreatorNavigation))
+            .ReverseMap();
         }
     }
 }

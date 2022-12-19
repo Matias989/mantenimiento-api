@@ -59,14 +59,13 @@ namespace mantenimiento_api.Services
             }
         }
 
-        public List<WorkOrder> GetWorkOrders()
+        public IEnumerable<WorkOrder> GetWorkOrders()
         {
             try
             {
                 return _context.WorkOrders
                     .Include(w => w.IdUserAsignedNavigation)
-                    .Include(w => w.IdUserCreatorNavigation)
-                    .ToList();
+                    .Include(w => w.IdUserCreatorNavigation);
             }
             catch (Exception e)
             {

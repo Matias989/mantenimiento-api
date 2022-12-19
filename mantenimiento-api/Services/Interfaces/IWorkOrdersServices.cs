@@ -4,7 +4,7 @@ namespace mantenimiento_api.Services.Interfaces
 {
     public interface IWorkOrdersServices
     {
-        List<WorkOrder> GetWorkOrders();
+        IEnumerable<WorkOrder> GetWorkOrders();
         WorkOrder? GetWorkOrder(int id);
         int InsertWorkOrder(WorkOrder workOrder);
         bool DeleteWorkOrder(int id);
