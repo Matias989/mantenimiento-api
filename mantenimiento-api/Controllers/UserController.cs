@@ -31,13 +31,14 @@ namespace mantenimiento_api.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<ApiResponseBase<IEnumerable<User>>>> GetUsers()
+        public async Task<ActionResult<ApiResponseBase<IEnumerable<UserVM>>>> GetUsers()
         {
-            ApiResponseBase<IEnumerable<User>> resp = new ApiResponseBase<IEnumerable<User>>();
+            ApiResponseBase<IEnumerable<UserVM>> resp = new ApiResponseBase<IEnumerable<UserVM>>();
             resp.Successful();
             try
             {
-                resp.Data = _services.GetUsers();
+                IEnumerable<User> res = _services.GetUsers();
+                resp.Data = _mapper.Map<IEnumerable<User>, IEnumerable<UserVM>>(res);
             }
             catch (Exception e)
             {
@@ -48,19 +49,21 @@ namespace mantenimiento_api.Controllers
 
         // GET: api/Users/5
         [HttpGet("{email}")]
-        public async Task<ActionResult<ApiResponseBase<User>>> GetUser([FromQuery] string email)
+        public async Task<ActionResult<ApiResponseBase<UserVM>>> GetUser([FromQuery] string email)
         {
-            ApiResponseBase<User> resp = new ApiResponseBase<User>();
+            ApiResponseBase<UserVM> resp = new ApiResponseBase<UserVM>();
             resp.Successful();
             try
             {
-                resp.Data = _services.GetUser(email);
+                var res = _services.GetUser(email);
 
-                if (resp.Data == null)
+                if (res == null)
                 {
                     resp.Error("Usuario no encontrado");
                     return BadRequest(resp);
                 }
+
+                resp.Data = _mapper.Map<User, UserVM>(res);
             }
             catch (Exception e)
             {
@@ -71,19 +74,21 @@ namespace mantenimiento_api.Controllers
         }
         // GET: api/Users/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApiResponseBase<User>>> GetUser([FromQuery]int id)
+        public async Task<ActionResult<ApiResponseBase<UserVM>>> GetUser([FromQuery]int id)
         {
-            ApiResponseBase<User> resp = new ApiResponseBase<User>();
+            ApiResponseBase<UserVM> resp = new ApiResponseBase<UserVM>();
             resp.Successful();
             try
             {
-                resp.Data = _services.GetUser(id);
+                var res = _services.GetUser(id);
 
-                if (resp.Data == null)
+                if (res == null)
                 {
                     resp.Error("Usuario no encontrado");
                     return BadRequest(resp);
                 }
+
+                resp.Data = _mapper.Map<User, UserVM>(res);
             }
             catch (Exception e)
             {
@@ -94,7 +99,6 @@ namespace mantenimiento_api.Controllers
         }
 
         // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
         public async Task<ActionResult<ApiResponseBase<string>>> PutUser([FromBody] UserVM userVM)
         {
@@ -134,7 +138,6 @@ namespace mantenimiento_api.Controllers
         }
 
         // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<ApiResponseBase<int>>> PostUser([FromBody] UserVM userVM)
         {
@@ -147,7 +150,10 @@ namespace mantenimiento_api.Controllers
                     resp.Error("Usuario no valido");
                     return BadRequest(resp);
                 }
-                
+
+                // TODO - esto deberia activarse por mail
+                userVM.Active = true;
+
                 var user = _mapper.Map<UserVM, User>(userVM);
 
                 resp.Data = _services.InsertUser(user);

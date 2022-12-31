@@ -38,6 +38,7 @@ namespace mantenimiento_api.Controllers
         {
             _logger.LogInformation("------Start AuthController - Authenticate ------");
             ApiResponseBase<AuthVM> resp = new ApiResponseBase<AuthVM>();
+            resp.Data = new AuthVM();
             resp.Successful();
             try
             {

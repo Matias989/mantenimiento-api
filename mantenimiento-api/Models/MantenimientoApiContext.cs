@@ -33,9 +33,6 @@ public partial class MantenimientoApiContext : DbContext
 
     public virtual DbSet<WorkOrder> WorkOrders { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=MantenimientoApi;Trusted_Connection=True;TrustServerCertificate=True");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Observation>(entity =>
@@ -100,6 +97,9 @@ public partial class MantenimientoApiContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_Users_Id");
 
+            entity.HasIndex(e => e.Email, "UQ_Users_Email").IsUnique();
+
+            entity.Property(e => e.Email).HasMaxLength(120);
             entity.Property(e => e.Name).HasMaxLength(60);
 
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Users)

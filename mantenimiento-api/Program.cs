@@ -3,7 +3,10 @@ using mantenimiento_api.Controllers.Profile;
 using mantenimiento_api.Models;
 using mantenimiento_api.Services;
 using mantenimiento_api.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,8 +33,22 @@ builder.Services.AddScoped<IWorkOrdersServices, WorkOrdersServices>();
 builder.Services.AddScoped<IUsersServices, UsersServices>();
 builder.Services.AddScoped<IAuthServices, AuthServices>();
 
-//Mapping
+//JWT
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
+    {
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+            ValidateAudience = false,
+            ValidateIssuer = false
+        };
+    });
+
+////Mapping
 builder.Services.AddAutoMapper(typeof(WorkOrderProfile));
+builder.Services.AddAutoMapper(typeof(UserProfile));
 
 var app = builder.Build();
 
@@ -44,6 +61,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
