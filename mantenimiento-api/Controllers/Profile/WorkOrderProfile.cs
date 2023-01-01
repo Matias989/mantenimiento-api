@@ -11,10 +11,10 @@ namespace mantenimiento_api.Controllers.Profile
         {
             CreateMap<User, UserVM>();
             CreateMap<WorkOrder, WorkOrderVM>()
-            .ForMember(d => d.UserAsigned,
-                 opt => opt.MapFrom(s => s.IdUserAsignedNavigation))
-            .ForMember(d => d.UserCreator,
-                 opt => opt.MapFrom(s => s.IdUserCreatorNavigation))
+            .ForMember(d => d.IdUserAsigned,
+                 opt => opt.MapFrom(s => s.IdUserAsigned))
+            .ForMember(d => d.IdUserCreator,
+                 opt => opt.MapFrom(s => s.IdUserCreator))
             .ReverseMap();
         }
     }

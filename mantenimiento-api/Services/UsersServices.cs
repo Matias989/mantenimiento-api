@@ -42,6 +42,8 @@ namespace mantenimiento_api.Services
             try
             {
                 var user = _context.Users.FirstOrDefault(x => x.Id == id);
+                user.Password = null;
+                user.Salt = null;
                 return user;
             }
             catch (Exception e)
@@ -55,8 +57,7 @@ namespace mantenimiento_api.Services
         {
             try
             {
-                var user = _context.Users.FirstOrDefault(x => x.Email == email);
-                return user;
+                return _context.Users.FirstOrDefault(x => x.Email == email);
             }
             catch (Exception e)
             {
@@ -69,7 +70,19 @@ namespace mantenimiento_api.Services
         {
             try
             {
-                return _context.Users;
+                return _context.Users.Select
+                    ( usu =>
+                        new User 
+                        {
+                            Id= usu.Id,
+                            Name= usu.Name,
+                            Email= usu.Email,
+                            Active= usu.Active,
+                            IdRol= usu.IdRol,
+                            Password= null,
+                            Salt= null
+                        }
+                    );
             }
             catch (Exception e)
             {
