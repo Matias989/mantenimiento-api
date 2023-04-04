@@ -24,7 +24,7 @@ namespace mantenimiento_api.Utils
     {
         public static byte[] GenerateSalt(int nSalt)
         {
-            byte[] salt = RandomNumberGenerator.GetBytes(128 / 8);
+            byte[] salt = RandomNumberGenerator.GetBytes(128 / nSalt);
 
             return salt;
         }
