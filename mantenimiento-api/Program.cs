@@ -77,6 +77,8 @@ builder.Services.AddAutoMapper(typeof(UserProfile));
 
 var app = builder.Build();
 
+//Cambio por tarea
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
