@@ -24,7 +24,6 @@ namespace mantenimiento_api.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
         public async Task<ActionResult<ApiResponseBase<IEnumerable<WorkOrderVM>>>> Get()
         {
             ApiResponseBase<IEnumerable<WorkOrderVM>> resp = new ApiResponseBase<IEnumerable<WorkOrderVM>>();
@@ -44,7 +43,6 @@ namespace mantenimiento_api.Controllers
         }
 
         [HttpGet("{id}")]
-        [AllowAnonymous]
 
         public async Task<ActionResult<ApiResponseBase<WorkOrderVM>>> Get([FromQuery]int id)
         {
@@ -79,24 +77,24 @@ namespace mantenimiento_api.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
         public async Task<ActionResult<ApiResponseBase<int>>> Post([FromBody] WorkOrderVM workOrderVM)
         {
             ApiResponseBase<int> resp = new ApiResponseBase<int>();
             resp.Successful();
             try
             {
-                if (workOrderVM.UserCreator is null || string.IsNullOrEmpty(workOrderVM.Observation))
+                if (workOrderVM.IdUserCreator <= 0 || string.IsNullOrEmpty(workOrderVM.Observation))
                 {
                     string msjError = "Valores obligatorios ingresados incorrectos";
                     resp.Error(msjError);
                     _logger.LogError(msjError);
                     return BadRequest(resp);
                 }
+
                 var mappedWO = _mapper.Map<WorkOrderVM, WorkOrder>(workOrderVM);
                 var idWorkOrder = _services.InsertWorkOrder(mappedWO);
 
-                if (idWorkOrder < 0) 
+                if (idWorkOrder <= 0) 
                 {
                     string msjError = "Ocurrio un problema insertando el registro";
                     _logger.LogError(msjError);
@@ -114,7 +112,6 @@ namespace mantenimiento_api.Controllers
         }
 
         [HttpPut]
-        [AllowAnonymous]
         public async Task<ActionResult<ApiResponseBase<string>>> Put([FromBody] WorkOrderVM workOrderVM)
         {
             ApiResponseBase<string> resp = new ApiResponseBase<string>();
@@ -122,7 +119,7 @@ namespace mantenimiento_api.Controllers
             resp.Data = string.Empty;
             try
             {
-                if (workOrderVM.UserCreator is null || string.IsNullOrEmpty(workOrderVM.Observation))
+                if (workOrderVM.IdUserCreator > 0 || string.IsNullOrEmpty(workOrderVM.Observation))
                 {
                     string msjError = "Valores obligatorios ingresados incorrectos";
                     resp.Error(msjError);
@@ -151,7 +148,6 @@ namespace mantenimiento_api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [AllowAnonymous]
         public async Task<ActionResult<ApiResponseBase<string>>> Delete([FromQuery] int idWorkOrder)
         {
             ApiResponseBase<string> resp = new ApiResponseBase<string>();

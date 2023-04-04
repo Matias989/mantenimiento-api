@@ -138,6 +138,7 @@ namespace mantenimiento_api.Controllers
         }
 
         // POST: api/Users
+        [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<ApiResponseBase<int>>> PostUser([FromBody] UserVM userVM)
         {
